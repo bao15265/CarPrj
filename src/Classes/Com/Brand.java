@@ -1,6 +1,8 @@
+package Classes.Com;
+
 public class Brand {
-    private String brandID, brandName, soundBrand;
-    private double price;
+    String brandID, brandName, soundBrand;
+    double price;
 
     public Brand() {
 

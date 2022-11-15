@@ -1,11 +1,11 @@
-import java.lang.Comparable;
+package Classes.Com;
 
-public class Car {
-    private String carID;
-    private Brand brand;
-    private String color;
-    private String frameID;
-    private String engineID;
+public class Car implements Comparable<Car> {
+    String carID;
+    Brand brand;
+    String color;
+    String frameID;
+    String engineID;
 
     public Car() {
 
@@ -60,7 +60,20 @@ public class Car {
     }
 
     @Override
+    public int compareTo(Car c) {
+        int d = this.brand.brandName.compareTo(c.brand.brandName);
+        if (d != 0) {
+            return d;
+        }
+        return this.carID.compareTo(c.carID);
+    }
+
+    @Override
     public String toString() {
-        return super.toString();
+        return String.format("%s, %s, %s, %s, %s", carID, brand.brandID, color, frameID, engineID);
+    }
+
+    public String screenString() {
+        return String.format("%s, %n, %s, %s, %s, %s", brand, carID, color, frameID, engineID);
     }
 }
