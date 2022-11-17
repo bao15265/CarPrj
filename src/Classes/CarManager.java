@@ -36,19 +36,23 @@ public class CarManager {
             switch (choice) {
                 case 1 -> brandList.listBrands();
                 case 2 -> brandList.addBrand();
-                case 3 -> brandList.updateBrand();
-                case 4 -> {
+                case 3 -> {
                     System.out.println("Enter ID to search: ");
                     String id = sc.nextLine();
-                    brandList.searchID(id);
+                    if (brandList.searchID(id) < 0) {
+                        System.out.println("Not found!");
+                    } else {
+                        System.out.println(brandList.get(brandList.searchID(id)).toString());
+                    }
                 }
+                case 4 -> brandList.updateBrand();
                 case 5 -> brandList.saveToFile("src/brands.txt");
                 case 6 -> carList.listCar();
                 case 7 -> carList.printBasedBrandName();
                 case 8 -> carList.addCar();
                 case 9 -> carList.removeCar();
                 case 10 -> carList.updateCar();
-                case 11 -> carList.saveFromFile("scr/cars.txt");
+                case 11 -> carList.saveFromFile("src/cars.txt");
                 default -> {
                     System.out.println("This choice doesn't exist in menu");
                     System.out.println("Press any key to exit");

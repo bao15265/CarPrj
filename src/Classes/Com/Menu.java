@@ -9,9 +9,9 @@ public class Menu {
         Scanner sc = new Scanner(System.in);
         int N = options.size();
         for (int i = 0; i < N; i++) {
-            System.out.println(String.format("%d - %s", i + 1, options.get(i)));
+            System.out.printf("%d - %s%n", i + 1, options.get(i));
         }
-        System.out.println(String.format("Please choose an option 1..%d:", N));
+        System.out.printf("Please choose an option 1..%d: %n", N);
         response = sc.nextInt();
         return response;
     }

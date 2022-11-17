@@ -9,7 +9,6 @@ public class BrandList extends java.util.ArrayList<Brand> {
 
     public BrandList() {
 
-
     }
 
     public boolean loadFromFile(String filename) throws IOException {
@@ -34,7 +33,7 @@ public class BrandList extends java.util.ArrayList<Brand> {
     public boolean saveToFile(String filename) throws IOException {
         BufferedWriter writer = new BufferedWriter(new FileWriter(filename));
         for (Brand brand : this) {
-            String brandOut = String.format("%s, %s, %s: %.3f%n", brand.brandID, brand.brandName, brand.brandID, brand.price);
+            String brandOut = String.format("%s, %s, %s: %.3f%n", brand.brandID, brand.brandName, brand.soundBrand, brand.price);
             writer.write(brandOut);
         }
         writer.close();
@@ -44,7 +43,7 @@ public class BrandList extends java.util.ArrayList<Brand> {
     public int searchID(String bID) {
         int N = this.size();
         for (int i = 0; i < N; i++) {
-            if (bID.equals(this.get(i).brandID)) {
+            if (bID.equalsIgnoreCase(this.get(i).brandID)) {
                 return i;
             }
         }
@@ -58,37 +57,39 @@ public class BrandList extends java.util.ArrayList<Brand> {
 
     public void addBrand() {
         Brand newBrand = new Brand();
-        this.add(newBrand);
 
         System.out.println("Enter brand ID: ");
-        newBrand.setBrandID(sc.nextLine());
-        for (Brand brand : this) {
-            if (newBrand.getBrandID().equals(brand.brandID)) {
-                System.out.println("ID already exists in the list. Please re-enter!");
-                newBrand.setBrandID(sc.nextLine());
+        newBrand.setBrandID(sc.nextLine().toUpperCase());
+        for (int i = 0; i < this.size(); i++) {
+            while (newBrand.getBrandID().equals(this.get(i).brandID)) {
+                System.out.println("ID already exists in the list. Please re-enter: ");
+                newBrand.setBrandID(sc.nextLine().toUpperCase());
+                i = 0;
             }
         }
 
         System.out.println("Enter brand name: ");
         newBrand.setBrandName(sc.nextLine());
         while (newBrand.getBrandName().isBlank()) {
-            System.out.println("The brand name is blank. Please re-enter!");
+            System.out.println("The brand name is blank. Please re-enter: ");
             newBrand.setBrandName(sc.nextLine());
         }
 
         System.out.println("Enter sound bar: ");
-        newBrand.setSoundBrand(sc.nextLine());
+        newBrand.setSoundBrand(sc.nextLine().toUpperCase());
         while (newBrand.getSoundBrand().isBlank()) {
-            System.out.println("The sound bar is blank. Please re-enter!");
-            newBrand.setSoundBrand(sc.nextLine());
+            System.out.println("The sound bar is blank. Please re-enter: ");
+            newBrand.setSoundBrand(sc.nextLine().toUpperCase());
         }
 
         System.out.println("Enter price: ");
         newBrand.setPrice(sc.nextDouble());
         while (newBrand.getPrice() <= 0) {
-            System.out.println("Price must be higher than zero. Please re-enter!");
+            System.out.println("Price must be higher than zero. Please re-enter: ");
             newBrand.setPrice(sc.nextDouble());
         }
+
+        this.add(newBrand);
     }
 
     public void updateBrand() {
@@ -101,30 +102,29 @@ public class BrandList extends java.util.ArrayList<Brand> {
             System.out.println("Update brand name: ");
             this.get(pos).setBrandName(sc.nextLine());
             while (this.get(pos).getBrandName().isBlank()) {
-                System.out.println("The brand name is blank. Please re-enter!");
+                System.out.println("The brand name is blank. Please re-enter: ");
                 this.get(pos).setBrandName(sc.nextLine());
             }
 
             System.out.println("Update sound bar: ");
-            this.get(pos).setSoundBrand(sc.nextLine());
+            this.get(pos).setSoundBrand(sc.nextLine().toUpperCase());
             while (this.get(pos).getSoundBrand().isBlank()) {
-                System.out.println("The sound bar is blank. Please re-enter!");
-                this.get(pos).setSoundBrand(sc.nextLine());
+                System.out.println("The sound bar is blank. Please re-enter: ");
+                this.get(pos).setSoundBrand(sc.nextLine().toUpperCase());
             }
 
             System.out.println("Update price: ");
             this.get(pos).setPrice(sc.nextDouble());
             while (this.get(pos).getPrice() <= 0) {
-                System.out.println("Price must be higher zero. Please re-enter!");
+                System.out.println("Price must be higher zero. Please re-enter: ");
                 this.get(pos).setPrice(sc.nextDouble());
             }
         }
     }
 
     public void listBrands() {
-        int N = this.size();
-        for (int i = 0; i < N; i++) {
-            System.out.println(this.get(i));
+        for (Brand brand : this) {
+            System.out.println(brand);
         }
     }
 }
