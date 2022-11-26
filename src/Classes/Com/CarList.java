@@ -1,8 +1,8 @@
 package Classes.Com;
 
 import java.io.*;
+import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.Scanner;
 
 public class CarList extends java.util.ArrayList<Car> {
@@ -13,12 +13,9 @@ public class CarList extends java.util.ArrayList<Car> {
         brandList = bList;
     }
 
-    public boolean loadFromFile(String filename) throws IOException {
+    public void loadFromFile(String filename) throws IOException {
         File f = new File(filename);
-        if (!f.exists()) {
-            return false;
-        } else {
-            BufferedReader reader = new BufferedReader(new FileReader(f));
+        try (BufferedReader reader = new BufferedReader(new FileReader(f))) {
             String line = reader.readLine();
             while (line != null) {
                 String[] dataCar = line.split(",");
@@ -29,19 +26,16 @@ public class CarList extends java.util.ArrayList<Car> {
                 this.add(car);
                 line = reader.readLine();
             }
-            reader.close();
         }
-        return true;
     }
 
-    public boolean saveFromFile(String filename) throws IOException {
-        BufferedWriter writer = new BufferedWriter(new FileWriter(filename));
-        for (Car car : this) {
-            String carOut = String.format("%s, %s, %s, %s, %s%n", car.carID, car.brand.brandID, car.color, car.frameID, car.engineID);
-            writer.write(carOut);
+    public void saveFromFile(String filename) throws IOException {
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(filename))) {
+            for (Car car : this) {
+                String carOut = String.format("%s, %s, %s, %s, %s%n", car.carID, car.brand.brandID, car.color, car.frameID, car.engineID);
+                writer.write(carOut);
+            }
         }
-        writer.close();
-        return true;
     }
 
     public int searchID(String carID) {
@@ -90,49 +84,50 @@ public class CarList extends java.util.ArrayList<Car> {
         return false;
     }
 
+    public void checkCarID(ArrayList<Car> a, Car b) {
+        System.out.println("Enter car ID: ");
+        b.setCarID(sc.nextLine().toUpperCase());
+        while (a.stream().anyMatch(obj -> b.getCarID().equals(obj.carID))) {
+            System.out.println("ID already exists in the list. Please re-enter: ");
+            b.setCarID(sc.nextLine().toUpperCase());
+        }
+    }
+
+    public void checkColor(Car b) {
+        System.out.println("Enter color: ");
+        b.setColor(sc.nextLine().toLowerCase());
+        while (b.getColor().isBlank()) {
+            System.out.println("The color is blank. Please re-enter: ");
+            b.setColor(sc.nextLine().toLowerCase());
+        }
+    }
+
+    public void checkFrameID(ArrayList<Car> a, Car b) {
+        System.out.println("Enter frame ID: ");
+        b.setFrameID(sc.nextLine().toUpperCase());
+        while (a.stream().anyMatch(obj -> b.getFrameID().equals(obj.frameID)) || notBeFormat(b.getFrameID(), 'F')) {
+            System.out.println("It must be in the <F00000> and not be duplicated. Please re-enter: ");
+            b.setFrameID(sc.nextLine().toUpperCase());
+        }
+    }
+
+    public void checkEngineID(ArrayList<Car> a, Car b) {
+        System.out.println("Enter engine ID: ");
+        b.setEngineID(sc.nextLine().toUpperCase());
+        while (a.stream().anyMatch(obj -> b.getEngineID().equals(obj.engineID)) || notBeFormat(b.getEngineID(), 'E')) {
+            System.out.println("It must be in the <E00000> and not be duplicated. Please re-enter: ");
+            b.setEngineID(sc.nextLine().toUpperCase());
+        }
+    }
+
     public void addCar() {
         Car newCar = new Car();
-
-        System.out.println("Enter car ID: ");
-        newCar.setCarID(sc.nextLine().toUpperCase());
-        for (int i = 0; i < this.size(); i++) {
-            while (newCar.getCarID().equals(this.get(i).carID)) {
-                System.out.println("ID already exists in the list. Please re-enter: ");
-                newCar.setCarID(sc.nextLine().toUpperCase());
-                i = 0;
-            }
-        }
-
+        checkCarID(this, newCar);
         Brand b = brandList.getUserChoice();
         newCar.setBrand(b);
-
-        System.out.println("Enter color: ");
-        newCar.setColor(sc.nextLine().toLowerCase());
-        while (newCar.getColor().isBlank()) {
-            System.out.println("The color is blank. Please re-enter: ");
-            newCar.setColor(sc.nextLine().toLowerCase());
-        }
-
-        System.out.println("Enter frame ID: ");
-        newCar.setFrameID(sc.nextLine().toUpperCase());
-        for (int i = 0; i < this.size(); i++) {
-            while (notBeFormat(newCar.getFrameID(), 'F') || newCar.getFrameID().equals(this.get(i).frameID)) {
-                System.out.println("It must be in the <F00000> and not be duplicated. Please re-enter: ");
-                newCar.setFrameID(sc.nextLine().toUpperCase());
-                i = 0;
-            }
-        }
-
-        System.out.println("Enter engine ID: ");
-        newCar.setEngineID(sc.nextLine().toUpperCase());
-        for (int i = 0; i < this.size(); i++) {
-            while (notBeFormat(newCar.getEngineID(), 'E') || newCar.getEngineID().equals(this.get(i).engineID)) {
-                System.out.println("It must be in the <E00000> and not be duplicated. Please re-enter: ");
-                newCar.setEngineID(sc.nextLine().toUpperCase());
-                i = 0;
-            }
-        }
-
+        checkColor(newCar);
+        checkFrameID(this, newCar);
+        checkEngineID(this, newCar);
         this.add(newCar);
     }
 
@@ -140,89 +135,43 @@ public class CarList extends java.util.ArrayList<Car> {
         int count = 0;
         System.out.println("Enter a part of brand name: ");
         String partOfBrandName = sc.nextLine().toUpperCase();
-        for (Car c : this) {
-            if (c.brand.brandName.toUpperCase().contains(partOfBrandName)) {
-                System.out.println(c.screenString());
-                count++;
-            }
-        }
+        count = (int) this.stream().filter(obj -> obj.brand.brandName.toUpperCase().contains(partOfBrandName))
+                .peek(obj -> System.out.println(obj.screenString())).count();
         if (count == 0) {
             System.out.println("No car is detected!");
         }
     }
 
-    public boolean removeCar() {
+    public void removeCar() {
         System.out.println("Enter ID to remove: ");
         String removedID = sc.nextLine();
         int pos = searchID(removedID);
         if (pos < 0) {
             System.out.println("Not found!");
-            return false;
         } else {
             this.remove(pos);
         }
-        return true;
     }
 
-    public boolean updateCar() {
+    public void updateCar() {
         System.out.println("Enter ID to update: ");
         String updatedID = sc.nextLine();
         int pos = searchID(updatedID);
         if (pos < 0) {
             System.out.println("Not found!");
-            return false;
         } else {
             Brand b = brandList.getUserChoice();
             this.get(pos).setBrand(b);
-
-            System.out.println("Update color: ");
-            this.get(pos).setColor(sc.nextLine().toLowerCase());
-            while (this.get(pos).getColor().isBlank()) {
-                System.out.println("The brand name is blank. Please re-enter: ");
-                this.get(pos).setColor(sc.nextLine().toLowerCase());
-            }
-
-            System.out.println("Update frame ID: ");
-            this.get(pos).setFrameID(sc.nextLine().toUpperCase());
-            for (int i = 0; i < pos; i++) {
-                while (notBeFormat(this.get(pos).getFrameID(), 'F') || this.get(pos).getFrameID().equals(this.get(i).frameID)) {
-                    System.out.println("It must be in the <F00000> and not be duplicated. Please re-enter: ");
-                    this.get(pos).setFrameID(sc.nextLine().toUpperCase());
-                    i = 0;
-                }
-            }
-            for (int i = pos + 1; i < this.size(); i++) {
-                while (notBeFormat(this.get(pos).getFrameID(), 'F') || this.get(pos).getFrameID().equals(this.get(i).frameID)) {
-                    System.out.println("It must be in the <F00000> and not be duplicated. Please re-enter: ");
-                    this.get(pos).setFrameID(sc.nextLine().toUpperCase());
-                    i = 0;
-                }
-            }
-
-            System.out.println("Update engine ID: ");
-            this.get(pos).setEngineID(sc.nextLine().toUpperCase());
-            for (int i = 0; i < pos; i++) {
-                while (notBeFormat(this.get(pos).getEngineID(), 'E') || this.get(pos).getEngineID().equals(this.get(i).engineID)) {
-                    System.out.println("It must be in the <E00000> and not be duplicated. Please re-enter: ");
-                    this.get(pos).setEngineID(sc.nextLine().toUpperCase());
-                    i = 0;
-                }
-            }
-            for (int i = pos + 1; i < this.size(); i++) {
-                while (notBeFormat(this.get(pos).getEngineID(), 'E') || this.get(pos).getEngineID().equals(this.get(i).engineID)) {
-                    System.out.println("It must be in the <E00000> and not be duplicated. Please re-enter: ");
-                    this.get(pos).setEngineID(sc.nextLine().toUpperCase());
-                    i = 0;
-                }
-            }
+            checkColor(this.get(pos));
+            Car db = new Car();
+            checkFrameID(this, db);
+            this.get(pos).setFrameID(db.getFrameID());
+            checkEngineID(this, db);
+            this.get(pos).setEngineID(db.getEngineID());
         }
-        return true;
     }
 
     public void listCar() {
-        Collections.sort(this);
-        for (Car c : this) {
-            System.out.println(c.screenString());
-        }
+        this.stream().sorted().forEach(System.out::println);
     }
 }
